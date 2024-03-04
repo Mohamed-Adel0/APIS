@@ -6,7 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../../fullstack/src/Components/image"));
+    cb(null, path.join(__dirname, "../image"));
   },
   filename: function (req, file, cb) {
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
@@ -28,7 +28,7 @@ Router.route("/breakfast").post(
 );
 Router.route("/dishes").post(upload.single("image"), prdcontroller.AddDishes);
 Router.route("/drinks").post(upload.single("image"), prdcontroller.AddDrinks);
-Router.route("/dessert").post(upload.single("image"), prdcontroller.AddDessert);
+Router.route("/dessert").post(upload.single("image"), prdcontroller.AddDessert); 
 // Here for End Start Post
 // ---------------------------------------------------------------------
 
@@ -56,13 +56,14 @@ Router.route("/dessert").get(prdcontroller.GetDessert);
 Router.route("/dessert/:id").get(prdcontroller.SingalDessert);
 // ---------------------------------------------------------------------
 // Here for End Get All Products & Singal Products
-Router.route("/register").post(upload.single("image"),prdcontroller.addRegister);
+Router.route("/register").post(
+  upload.single("image"), 
+  prdcontroller.addRegister
+);
 // Here for get Data
 Router.route("/login").get(prdcontroller.getlogin);
 
- 
-
 // -------------------------------------------------------------------
-// Here Routes for Register & Login 
+// Here Routes for Register & Login
 
 module.exports = Router;
