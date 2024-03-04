@@ -56,5 +56,13 @@ Router.route("/dessert").get(prdcontroller.GetDessert);
 Router.route("/dessert/:id").get(prdcontroller.SingalDessert);
 // ---------------------------------------------------------------------
 // Here for End Get All Products & Singal Products
+Router.route("/register").post(upload.single("image"),prdcontroller.addRegister);
+// Here for get Data
+Router.route("/login").get(prdcontroller.getlogin);
+
+ 
+
+// -------------------------------------------------------------------
+// Here Routes for Register & Login 
 
 module.exports = Router;

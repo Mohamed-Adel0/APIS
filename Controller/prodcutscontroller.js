@@ -391,6 +391,61 @@ const SingalDessert = async (req, res) => {
 };
 // Here for End Singal Products & Get Products
 
+
+
+// Here for Create Login Post & Get & Update & Delete
+// here for post Data
+const addRegister = async (req, res) => {
+  try {
+    let data = await req.body;
+    let newProduct = await new Product.CreateLogin({
+      username: data.username,
+      email: data.email,
+      passowrd: data.passowrd,
+    });
+    newProduct.save();
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      data,
+      null,
+      "Uploaded Successfully" 
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again1"
+    );
+  }
+};
+// Here for Get data
+const getlogin = async (req, res) => {
+  try {
+    let getCreate = await Product.CreateLogin.find();
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      getCreate,
+      null,
+      "All Products Is Successfully"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
+    );
+  }
+};
 module.exports = {
   addBreakFast,
   GetprodBreakFast,
@@ -407,4 +462,6 @@ module.exports = {
   GetDishes,
   GetDessert,
   SingalDessert,
+  addRegister,
+  getlogin
 };
