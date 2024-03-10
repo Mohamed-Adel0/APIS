@@ -8,6 +8,7 @@ const productsSchema = mongoose.Schema({
   username: String,
   email: String,
   passowrd: String,
+  type : String
 });
 
 
