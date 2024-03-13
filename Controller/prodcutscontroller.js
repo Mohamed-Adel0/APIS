@@ -3,30 +3,76 @@ const ResponseMessage = require("../utilities/ResponseMessage.js");
 const httpResponse = require("../utilities/HttpResponse.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const auth = require("../modules/Authenticator.js");
 // ---------------------------------Here For Add Products Only -------------------------------------------
 
 // Here for Post Products
+// const AddAllProducts = async (req, res) => {
+//   try {
+//     let data = await req.body;
+//     let picture = req.file.filename;
+//     let newProduct = await new Product.AllProducts({
+//       title: data.title,
+//       price: data.price,
+//       image: picture,
+//       description: data.description,
+//     });
+//     newProduct.save();
+//     httpResponse(
+//       res,
+//       200,
+//       ResponseMessage.SUCCESS,
+//       data,
+//       null,
+//       "Uploaded Successfully"
+//     );
+//   } catch (err) {
+//     httpResponse(
+//       res,
+//       400,
+//       ResponseMessage.ERROR,
+//       null,
+//       err,
+//       "Couldn't Upload, Please Try again"
+//     );
+//   }
+// };
 const AddAllProducts = async (req, res) => {
   try {
-    let data = await req.body;
+    const data = req.body;
+    const token = req.body.token;
     let picture = req.file.filename;
-    let newProduct = await new Product.AllProducts({
-      title: data.title,
-      price: data.price,
-      image: picture,
-      description: data.description,
-    });
-    newProduct.save();
-    httpResponse(
-      res,
-      200,
-      ResponseMessage.SUCCESS,
-      data,
-      null,
-      "Uploaded Successfully"
-    );
-  } catch (err) {
+    if (token) {
+      const tokendata = auth(token);
+      if (tokendata.type == "Admin") {
+        let newProduct = await new Product.AllProducts({
+          title: data.title,
+          price: data.price,
+          image: picture,
+          description: data.description,
+        });
+        newProduct.save();
+        httpResponse(
+          res,
+          200,
+          ResponseMessage.SUCCESS,
+          data,
+          null,
+          "Uploaded Successfully"
+        );
+      } else {
+        httpResponse(
+          res,
+          200,
+          ResponseMessage.FAIL,
+          null,
+          "Please Login as Admin"
+        );
+      }
+    } else {
+      httpResponse(res, 200, ResponseMessage.FAIL,null, "Token invalid");
+    }
+  } catch {
     httpResponse(
       res,
       400,
@@ -36,6 +82,7 @@ const AddAllProducts = async (req, res) => {
       "Couldn't Upload, Please Try again"
     );
   }
+  res.end();
 };
 const addBreakFast = async (req, res) => {
   try {
@@ -399,7 +446,6 @@ const SingalDessert = async (req, res) => {
 };
 // Here for End Singal Products & Get Products
 
-
 // ---------------------------------Here For Login & Register Only -------------------------------------------
 
 // Here for Create Login Post & Get & Update & Delete
@@ -447,30 +493,30 @@ const addRegister = async (req, res) => {
   }
 };
 // Here for Get data
+
 const getlogin = async (req, res) => {
   try {
-    const data = await req.body;
-    const validator = await Product.CreateLogin.find({ email: data.email });
-    if (validator.length == 0) {
+    const data = req.body;
+    const connect = await Product.CreateLogin.find({ email: data.email });
+    if (connect.length == 0) {
       httpResponse(
         res,
         200,
         ResponseMessage.FAIL,
-        data,
         null,
         "email is not encrypted"
       );
     } else {
-      const compare = bcrypt.compare(validator[0].passowrd, data.passowrd);
+      const compare = await bcrypt.compare(data.passowrd, connect[0].passowrd);
+      const token = await jwt.sign(
+        {
+          username: connect[0].username,
+          email: connect[0].email,
+          type: connect[0].type,
+        },
+        process.env.JWT_SECRET_KEY
+      );
       if (compare) {
-        const token = jwt.sign(
-          {
-            username: validator[0].username,
-            email: validator[0].email,
-            type: validator[0].type,
-          },
-          process.env.token
-        );
         httpResponse(
           res,
           200,
@@ -480,14 +526,7 @@ const getlogin = async (req, res) => {
           "Login SuccessFully"
         );
       } else {
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.SUCCESS,
-          data,
-          null,
-          "Passowrd is already registered "
-        );
+        httpResponse(res, 200, ResponseMessage.FAIL, null, "Passowrd Wrong");
       }
     }
   } catch (err) {
@@ -497,13 +536,12 @@ const getlogin = async (req, res) => {
       ResponseMessage.ERROR,
       null,
       err,
-      "Couldn't Upload, Please Try again"
+      "Data Having Error"
     );
     console.log(err);
   }
+  res.end();
 };
-
-
 // ---------------------------------Here For Delete & Update's Only -------------------------------------------
 // Here for Delete Product
 const DeleteAllProducts = async (req, res) => {
@@ -791,5 +829,5 @@ module.exports = {
   UpdateDrinks,
   DeleteDrinks,
   UpdateDesserts,
-  DeleteDesserts
+  DeleteDesserts,
 };
