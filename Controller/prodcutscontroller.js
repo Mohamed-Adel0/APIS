@@ -1,49 +1,19 @@
 const Product = require("../modules/Product.js");
 const ResponseMessage = require("../utilities/ResponseMessage.js");
 const httpResponse = require("../utilities/HttpResponse.js");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const auth = require("../modules/Authenticator.js");
+const CreateToken = require("../utilities/CreateToken.js")
 // ---------------------------------Here For Add Products Only -------------------------------------------
 
 // Here for Post Products
-// const AddAllProducts = async (req, res) => {
-//   try {
-//     let data = await req.body;
-//     let picture = req.file.filename;
-//     let newProduct = await new Product.AllProducts({
-//       title: data.title,
-//       price: data.price,
-//       image: picture,
-//       description: data.description,
-//     });
-//     newProduct.save();
-//     httpResponse(
-//       res,
-//       200,
-//       ResponseMessage.SUCCESS,
-//       data,
-//       null,
-//       "Uploaded Successfully"
-//     );
-//   } catch (err) {
-//     httpResponse(
-//       res,
-//       400,
-//       ResponseMessage.ERROR,
-//       null,
-//       err,
-//       "Couldn't Upload, Please Try again"
-//     );
-//   }
-// };
 const AddAllProducts = async (req, res) => {
   try {
-    const data = req.body;
-    const token = req.body.token;
+    let data = await req.body;
+    let token = req.body.token;
     let picture = req.file.filename;
     if (token) {
-      const tokendata = auth(token);
+      let tokendata = auth(token);
       if (tokendata.type == "Admin") {
         let newProduct = await new Product.AllProducts({
           title: data.title,
@@ -52,34 +22,21 @@ const AddAllProducts = async (req, res) => {
           description: data.description,
         });
         newProduct.save();
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.SUCCESS,
-          data,
-          null,
-          "Uploaded Successfully"
-        );
+        httpResponse(res,200,ResponseMessage.SUCCESS,{data},null,"Uploaded Successfully");
       } else {
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.FAIL,
-          null,
-          "Please Login as Admin"
-        );
+        httpResponse(res,200,ResponseMessage.FAIL,null,"Please Login as Admin");
       }
     } else {
       httpResponse(res, 200, ResponseMessage.FAIL,null, "Token invalid");
     }
-  } catch {
+  } catch(err) {
     httpResponse(
       res,
       400,
       ResponseMessage.ERROR,
       null,
       err,
-      "Couldn't Upload, Please Try again"
+      "Please Login as Admin"
     );
   }
   res.end();
@@ -210,7 +167,6 @@ const AddDessert = async (req, res) => {
 
 // ---------------------------------------------------------------------
 // Here for Singal Products & Get Products
-// Here For BreakFast
 const GetAllProducts = async (req, res) => {
   try {
     let getData = await Product.AllProducts.find();
@@ -493,54 +449,24 @@ const addRegister = async (req, res) => {
   }
 };
 // Here for Get data
-
 const getlogin = async (req, res) => {
-  try {
-    const data = req.body;
-    const connect = await Product.CreateLogin.find({ email: data.email });
-    if (connect.length == 0) {
-      httpResponse(
-        res,
-        200,
-        ResponseMessage.FAIL,
-        null,
-        "email is not encrypted"
-      );
-    } else {
-      const compare = await bcrypt.compare(data.passowrd, connect[0].passowrd);
-      const token = await jwt.sign(
-        {
-          username: connect[0].username,
-          email: connect[0].email,
-          type: connect[0].type,
-        },
-        process.env.JWT_SECRET_KEY
-      );
-      if (compare) {
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.SUCCESS,
-          token,
-          null,
-          "Login SuccessFully"
-        );
+  try{
+    let userdata = await req.body;
+    let user = await Product.CreateLogin.find({ email: userdata.email });
+    if (user.length == 1) {
+      let PassowrdCheck = await bcrypt.compare(userdata.passowrd,user[0].passowrd);
+      if (PassowrdCheck) {
+        let token = CreateToken(user[0].username, user[0].email, user[0].type);
+        httpResponse(res,200,ResponseMessage.SUCCESS,[{token, type: user[0].type}] ,null,"Login SuccessFully");
       } else {
         httpResponse(res, 200, ResponseMessage.FAIL, null, "Passowrd Wrong");
       }
+    } else {
+      httpResponse(res,200,ResponseMessage.FAIL,null,"Email is not Encrypted");
     }
-  } catch (err) {
-    httpResponse(
-      res,
-      400,
-      ResponseMessage.ERROR,
-      null,
-      err,
-      "Data Having Error"
-    );
-    console.log(err);
+  }catch(err){
+    httpResponse(res,400,ResponseMessage.ERROR,null,err,"Data Not Working");
   }
-  res.end();
 };
 // ---------------------------------Here For Delete & Update's Only -------------------------------------------
 // Here for Delete Product
