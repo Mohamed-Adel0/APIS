@@ -450,7 +450,6 @@ const addRegister = async (req, res) => {
 };
 // Here for Get data
 const getlogin = async (req, res) => {
-<<<<<<< HEAD
   try{
     let userdata = await req.body;
     let user = await Product.CreateLogin.find({ email: userdata.email });
@@ -459,38 +458,6 @@ const getlogin = async (req, res) => {
       if (PassowrdCheck) {
         let token = CreateToken(user[0].username, user[0].email, user[0].type);
         httpResponse(res,200,ResponseMessage.SUCCESS,[{token, type: user[0].type}] ,null,"Login SuccessFully");
-=======
-  try {
-    const data = req.body;
-    const connect = await Product.CreateLogin.find({ email: data.email });
-    if (connect.length == 0) {
-      httpResponse(
-        res,
-        200,
-        ResponseMessage.FAIL,
-        null,
-        "email is not encrypted"
-      );
-    } else {
-      const compare = await bcrypt.compare(data.passowrd, connect[0].passowrd);
-      const token = await jwt.sign(
-        {
-          username: connect[0].username,
-          email: connect[0].email,
-          type: connect[0].type,
-        },
-        process.env.JWT_SECRET_KEY
-      );
-      if (compare) {
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.SUCCESS,
-          connect,
-          null,
-          "Login SuccessFully"
-        );
->>>>>>> a52695718c6ea46d75c496d2805c1206a6c86884
       } else {
         httpResponse(res, 200, ResponseMessage.FAIL, null, "Passowrd Wrong");
       }
