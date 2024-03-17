@@ -3,7 +3,7 @@ const ResponseMessage = require("../utilities/ResponseMessage.js");
 const httpResponse = require("../utilities/HttpResponse.js");
 const bcrypt = require("bcrypt");
 const auth = require("../modules/Authenticator.js");
-const CreateToken = require("../utilities/CreateToken.js")
+const CreateToken = require("../utilities/CreateToken.js");
 // ---------------------------------Here For Add Products Only -------------------------------------------
 
 // Here for Post Products
@@ -22,14 +22,27 @@ const AddAllProducts = async (req, res) => {
           description: data.description,
         });
         newProduct.save();
-        httpResponse(res,200,ResponseMessage.SUCCESS,{data},null,"Uploaded Successfully");
+        httpResponse(
+          res,
+          200,
+          ResponseMessage.SUCCESS,
+          { data },
+          null,
+          "Sent Successfully"
+        );
       } else {
-        httpResponse(res,200,ResponseMessage.FAIL,null,"Please Login as Admin");
+        httpResponse(
+          res,
+          200,
+          ResponseMessage.FAIL,
+          null,
+          "Please Login as Admin"
+        );
       }
     } else {
-      httpResponse(res, 200, ResponseMessage.FAIL,null, "Token invalid");
+      httpResponse(res, 200, ResponseMessage.FAIL, null, "Token invalid");
     }
-  } catch(err) {
+  } catch (err) {
     httpResponse(
       res,
       400,
@@ -58,7 +71,7 @@ const addBreakFast = async (req, res) => {
       ResponseMessage.SUCCESS,
       data,
       null,
-      "Uploaded Successfully"
+      "Sent Successfully"
     );
   } catch (err) {
     httpResponse(
@@ -69,6 +82,7 @@ const addBreakFast = async (req, res) => {
       err,
       "Couldn't Upload, Please Try again1"
     );
+    console.log(err);
   }
 };
 const AddDishes = async (req, res) => {
@@ -88,7 +102,7 @@ const AddDishes = async (req, res) => {
       ResponseMessage.SUCCESS,
       data,
       null,
-      "Uploaded Successfully"
+      "Sent Successfully"
     );
   } catch (err) {
     httpResponse(
@@ -118,7 +132,7 @@ const AddDrinks = async (req, res) => {
       ResponseMessage.SUCCESS,
       data,
       null,
-      "Uploaded Successfully"
+      "Sent Successfully"
     );
   } catch (err) {
     httpResponse(
@@ -128,6 +142,36 @@ const AddDrinks = async (req, res) => {
       null,
       err,
       "Couldn't Upload, Please Try again1"
+    );
+  }
+};
+const AddBookTable = async (req, res) => {
+  try {
+    let data = await req.body;
+    let newProduct = await new Product.BookTable({
+      date: data.date,
+      phone: data.phone,
+      time: data.time,
+      total: data.total,
+      username: data.username,
+    });
+    newProduct.save();
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      data,
+      null,
+      "Sent Successfully"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
     );
   }
 };
@@ -402,6 +446,54 @@ const SingalDessert = async (req, res) => {
 };
 // Here for End Singal Products & Get Products
 
+// Here For Book A Table
+const GetBookTable = async (req, res) => {
+  try {
+    let getData = await Product.BookTable.find();
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      getData,
+      null,
+      "All Information Displayed"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
+    );
+  }
+};
+const SingalBookTable = async (req, res) => {
+  try {
+    let pid = await req.params.id;
+    let product = await Product.BookTable.findById(pid);
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      product,
+      null,
+      "Single Item targeted"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
+    );
+  }
+};
+// Here for End Singal Products & Get Products For Book A Table
+
 // ---------------------------------Here For Login & Register Only -------------------------------------------
 
 // Here for Create Login Post & Get & Update & Delete
@@ -450,55 +542,45 @@ const addRegister = async (req, res) => {
 };
 // Here for Get data
 const getlogin = async (req, res) => {
-<<<<<<< HEAD
-  try{
+  try {
     let userdata = await req.body;
     let user = await Product.CreateLogin.find({ email: userdata.email });
     if (user.length == 1) {
-      let PassowrdCheck = await bcrypt.compare(userdata.passowrd,user[0].passowrd);
+      let PassowrdCheck = await bcrypt.compare(
+        userdata.passowrd,
+        user[0].passowrd
+      );
       if (PassowrdCheck) {
         let token = CreateToken(user[0].username, user[0].email, user[0].type);
-        httpResponse(res,200,ResponseMessage.SUCCESS,[{token, type: user[0].type}] ,null,"Login SuccessFully");
-=======
-  try {
-    const data = req.body;
-    const connect = await Product.CreateLogin.find({ email: data.email });
-    if (connect.length == 0) {
+        httpResponse(
+          res,
+          200,
+          ResponseMessage.SUCCESS,
+          [{ token, type: user[0].type }],
+          null,
+          "Login SuccessFully"
+        );
+      } else {
+        httpResponse(res, 200, ResponseMessage.FAIL, null, "Passowrd Wrong");
+      }
+    } else {
       httpResponse(
         res,
         200,
         ResponseMessage.FAIL,
         null,
-        "email is not encrypted"
+        "Email is not Encrypted"
       );
-    } else {
-      const compare = await bcrypt.compare(data.passowrd, connect[0].passowrd);
-      const token = await jwt.sign(
-        {
-          username: connect[0].username,
-          email: connect[0].email,
-          type: connect[0].type,
-        },
-        process.env.JWT_SECRET_KEY
-      );
-      if (compare) {
-        httpResponse(
-          res,
-          200,
-          ResponseMessage.SUCCESS,
-          connect,
-          null,
-          "Login SuccessFully"
-        );
->>>>>>> a52695718c6ea46d75c496d2805c1206a6c86884
-      } else {
-        httpResponse(res, 200, ResponseMessage.FAIL, null, "Passowrd Wrong");
-      }
-    } else {
-      httpResponse(res,200,ResponseMessage.FAIL,null,"Email is not Encrypted");
     }
-  }catch(err){
-    httpResponse(res,400,ResponseMessage.ERROR,null,err,"Data Not Working");
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Data Not Working"
+    );
   }
 };
 // ---------------------------------Here For Delete & Update's Only -------------------------------------------
@@ -761,6 +843,35 @@ const UpdateDesserts = async (req, res) => {
   }
 };
 // Here for End Update & Delete for Dishes
+
+// Here for  Delete for Book A TABLE
+const DeleteBookTable = async (req, res) => {
+  try {
+    const pid = req.params.id;
+    const deleteProd = await Product.BookTable.findByIdAndDelete(pid);
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      deleteProd,
+      null,
+      "Done Delete The Informaton"
+    );
+  } catch (err) {
+    // b3d el ftar hb2a akmal a3del 3alla el alarms elly btatl3 fe Notice abl ma a3ml upload ly backend
+    httpResponse(
+      // we 3awz at2ked mn el 7aga elly 3amlha ly book table mstahdef el 3nsr bta3 Product.booktable sa7 walla la2
+      res, // we 3awz atk2d bardo mn en el rules bta3t el data sa7 walla la2 zy username , phone , date ,we 3'erha
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
+    );
+  }
+};
+// Here for End & Delete for Book A TABLE
+
 module.exports = {
   addBreakFast,
   GetprodBreakFast,
@@ -789,4 +900,8 @@ module.exports = {
   DeleteDrinks,
   UpdateDesserts,
   DeleteDesserts,
+  AddBookTable,
+  DeleteBookTable,
+  SingalBookTable,
+  GetBookTable,
 };
