@@ -153,6 +153,7 @@ const AddBookTable = async (req, res) => {
       phone: data.phone,
       time: data.time,
       total: data.total,
+      type: data.type,
       username: data.username,
     });
     newProduct.save();
