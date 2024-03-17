@@ -18,7 +18,7 @@ const BookTableSchema = mongoose.Schema({
   total: String,
   username: String,
   image: String,
-  type: "users",
+  type: String,
 });
 const BreakFast = mongoose.model("breakfast", productsSchema);
 const AllProducts = mongoose.model("allproducts", productsSchema);
