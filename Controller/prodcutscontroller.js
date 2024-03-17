@@ -556,7 +556,7 @@ const getlogin = async (req, res) => {
           res,
           200,
           ResponseMessage.SUCCESS,
-          [{ token, type: user[0].type }],
+          [{ token, type: user[0].type  , username: user[0].username }],
           null,
           "Login SuccessFully"
         );
