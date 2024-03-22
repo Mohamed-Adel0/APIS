@@ -62,7 +62,8 @@ Router.route("/register").post(
 );
 // Here for get Data
 Router.route("/login").post(upload.single("image"),prdcontroller.getlogin);
-
+Router.route("/register").get(prdcontroller.getRegister);
+Router.route("/register/:id").get(prdcontroller.SingalRegister);
 // -------------------------------------------------------------------
 // Here Routes for Register & Login
 

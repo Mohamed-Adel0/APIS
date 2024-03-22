@@ -556,7 +556,7 @@ const getlogin = async (req, res) => {
           res,
           200,
           ResponseMessage.SUCCESS,
-          [{ token, type: user[0].type }],
+          [{ token, type: user[0].type , username: user[0].username, id: user[0]._id,email: user[0].email}],
           null,
           "Login SuccessFully"
         );
@@ -580,6 +580,51 @@ const getlogin = async (req, res) => {
       null,
       err,
       "Data Not Working"
+    );
+  }
+};
+const getRegister = async (req, res) => {
+  try {
+    let getData = await Product.CreateLogin.find();
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      getData,
+      null,
+      "All Information Displayed"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
+    );
+  }
+};
+const SingalRegister = async (req, res) => {
+  try {
+    let pid = await req.params.id;
+    let product = await Product.CreateLogin.findById(pid);
+    httpResponse(
+      res,
+      200,
+      ResponseMessage.SUCCESS,
+      product,
+      null,
+      "Single Item targeted"
+    );
+  } catch (err) {
+    httpResponse(
+      res,
+      400,
+      ResponseMessage.ERROR,
+      null,
+      err,
+      "Couldn't Upload, Please Try again"
     );
   }
 };
@@ -904,4 +949,6 @@ module.exports = {
   DeleteBookTable,
   SingalBookTable,
   GetBookTable,
+  SingalRegister,
+  getRegister
 };
